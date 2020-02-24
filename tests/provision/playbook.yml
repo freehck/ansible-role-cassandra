@@ -1,0 +1,14 @@
+---
+
+- hosts: all
+  become: true
+  max_fail_percentage: 0
+  serial: 3
+  pre_tasks:
+    - name: create cassandra data dir {{ cassandra_path_data }}
+      file:
+        path: "{{ cassandra_path_data }}"
+        state: directory
+        recurse: true
+  roles:
+    - role: freehck.cassandra

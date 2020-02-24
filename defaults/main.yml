@@ -35,13 +35,12 @@ cassandra_node_iface_ext: eth0
 cassandra_node_iface_int: eth0
 
 # java
-cassandra_install_openjdk: no
+cassandra_install_openjdk: false
 cassandra_openjdk_version: 8
 cassandra_java_home: /usr/lib/jvm/java-{{ cassandra_openjdk_version }}-openjdk-amd64
 
 # cassandra configuration
 cassandra_cluster_name: cassandra
-cassandra_cluster_group_name: cassandra
 cassandra_seeds_group_name: cassandra_seeds
 cassandra_hinted_handoff_throttle_in_kb: 10124
 cassandra_max_hints_delivery_threads: 2

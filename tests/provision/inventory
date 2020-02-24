@@ -1,0 +1,6 @@
+cass01 ansible_host=10.10.10.11
+cass02 ansible_host=10.10.10.12
+cass03 ansible_host=10.10.10.13
+
+[cassandra_seeds]
+cass0[1:3]

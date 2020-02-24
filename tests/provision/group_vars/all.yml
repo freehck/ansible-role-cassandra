@@ -1,0 +1,8 @@
+---
+cassandra_version: 3.11.6
+cassandra_path_data: /data
+cassandra_iface: enp0s8
+cassandra_node_iface_ext: "{{ cassandra_iface }}"
+cassandra_node_iface_int: "{{ cassandra_iface }}"
+cassandra_install_openjdk: true
+cassandra_seeds_group_name: cassandra_seeds
