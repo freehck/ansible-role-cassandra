@@ -1,0 +1,24 @@
+---
+galaxy_info:
+  author: Alex Chistyakov, Dmitrii Kashin
+  description: install cassandra on bare metal
+  role_name: cassandra
+  license: MIT
+
+  min_ansible_version: 2.4
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - bionic
+
+  galaxy_tags:
+    - cassandra
+    - baremetal
+
+dependencies:
+  - role: freehck.pkg_install
+    vars:
+      pkg_install_packages:
+        - openjdk-{{ cassandra_openjdk_version }}-jdk
+    when: cassandra_install_openjdk

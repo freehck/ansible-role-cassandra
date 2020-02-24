@@ -1,0 +1,6 @@
+*~
+**/.vagrant
+**/retry
+**/*.log
+tests/*/roles/*
+!**/roles/freehck.cassandra

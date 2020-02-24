@@ -1,0 +1,16 @@
+[Unit]
+Description=Cassandra Service
+Documentation=https://cassandra.apache.org
+
+[Service]
+User={{ cassandra_user }}
+Group={{ cassandra_group }}
+ExecStart={{ cassandra_path_install }}/{{ cassandra_start }}
+LimitNOFILE={{ cassandra_limit_nofile }}
+StandardOutput=journal
+StandardError=journal
+Restart=always
+RestartSec=20
+
+[Install]
+WantedBy=multi-user.target

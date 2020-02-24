@@ -1,0 +1,63 @@
+---
+
+- name: check that group {{ cassandra_cluster_group_name }} is not empty
+  fail:
+    msg: >-
+      Your {{'{{'}} cassandra_cluster_group_name {{ '}}' }} is set to '{{ cassandra_cluster_group_name }}'
+      and has {{ groups[cassandra_cluster_group_name]|count }} hosts, but at least 1 is required
+  when: groups[cassandra_cluster_group_name] | count < 1
+
+- name: check if cassandra already installed
+  stat:
+    path: "{{ cassandra_path_install }}/cassandra"
+  register: link
+
+- include: install.yml
+  when: not link.stat.exists or cassandra_force_upgrade
+
+- name: create dirs
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ cassandra_user }}"
+    group: root
+    mode: "u+w"
+    recurse: yes
+  with_items:
+    - "{{ cassandra_path_logs }}"
+    - "{{ cassandra_path_hints }}"
+    - "{{ cassandra_path_caches }}"
+    - "{{ cassandra_path_cdc_raw }}"
+    - "{{ cassandra_path_data }}"
+
+- name: upload configs and scripts
+  template:
+    src: "{{ item.name }}"
+    dest: "{{ cassandra_path_install + '/' + item.name }}"
+    owner: "{{ item.user if item.user is defined else 'root' }}"
+    group: "{{ item.group if item.group is defined else 'root' }}"
+    mode: "{{ item.mode if item.mode is defined else '0644' }}"
+  with_items:
+    - { name: "cassandra/conf/cassandra.yaml", mode: "0640", user: "{{ cassandra_user }}" }
+    - { name: "cassandra/conf/logback.xml", mode: "0440", user: "{{ cassandra_user }}" }
+    - { name: "cassandra/conf/cassandra-topology.properties", mode: "0440", user: "{{ cassandra_user }}" }
+    - { name: "cassandra-autoconfig", mode: "0755" }
+
+- name: create systemd service file
+  template:
+    src: cassandra.service
+    dest: /etc/systemd/system/cassandra.service
+
+- name: enable and start cassandra service
+  systemd:
+    name: cassandra
+    state: started
+    enabled: true
+
+- name: wait for port availability
+  wait_for:
+    host: "{{ hostvars[inventory_hostname]['ansible_' + cassandra_node_iface_ext]['ipv4']['address'] }}"
+    port: 9042
+    delay: 5
+    timeout: 60
+  ignore_errors: true

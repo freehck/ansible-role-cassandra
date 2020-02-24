@@ -1,0 +1,46 @@
+---
+
+- name: download cassandra archive
+  get_url:
+    url: "{{ cassandra_archive_url }}"
+    dest: "{{ cassandra_archive }}"
+    checksum: "{% if not cassandra_omit_checksum %}sha256:{{ cassandra_archive_sha256 }}{% endif %}"
+
+- name: create install dir {{ cassandra_path_install }}
+  file:
+    path: "{{ cassandra_path_install }}"
+    state: directory
+
+- name: unpack
+  unarchive:
+    src: "{{ cassandra_archive }}"
+    dest: "{{ cassandra_path_install }}"
+    copy: no
+
+- name: remove archive
+  file:
+    path: "{{ cassandra_archive }}"
+    state: absent
+
+- name: update symlink
+  file:
+    src: "apache-cassandra-{{ cassandra_version }}"
+    dest: "{{ cassandra_path_install }}/cassandra"
+    state: link
+
+- name: create user
+  user:
+    name: "{{ cassandra_user }}"
+    comment: "cassandra run user"
+    home: "{{ cassandra_path_install }}"
+    system: true
+    createhome: false
+
+# check if it works properly
+- name: make all the file RO
+  file:
+    path: "{{ cassandra_path_install }}/apache-cassandra-{{ cassandra_version }}"
+    owner: "{{ cassandra_user }}"
+    group: 'root'
+    mode: "a-w"
+    recurse: yes

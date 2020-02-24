@@ -1,0 +1,58 @@
+#!/bin/bash -eux
+
+MEM_USE="{{ cassandra_mem_gb }}"
+
+if /usr/bin/test "$MEM_USE" = "" -o "$MEM_USE" -eq 0; then
+  MEM_USE="$(( $(grep '^MemTotal:[[:space:]]' /proc/meminfo | awk '{print $2}') * {{ cassandra_mem_pc }} / 100 ))"
+else
+  MEM_USE="$(( $MEM_USE * 1024 * 1024 ))"
+fi
+
+export MEM_USE
+export LOCAL_ADDR="{{ hostvars[inventory_hostname]['ansible_' + cassandra_node_iface_ext]['ipv4']['address'] }}"
+
+JAVA_HOME={{ cassandra_java_home }}
+
+CASSANDRA_HOME="{{ cassandra_path_install }}/cassandra"
+CASSANDRA_CONF="$CASSANDRA_HOME/conf"
+
+cassandra_bin="$CASSANDRA_HOME/build/classes/main"
+cassandra_bin="$cassandra_bin:$CASSANDRA_HOME/build/classes/thrift"
+#cassandra_bin="$cassandra_home/build/cassandra.jar"
+
+cassandra_parms="-Dlogback.configurationFile=logback.xml"
+cassandra_parms="$cassandra_parms -Dcassandra.logdir={{ cassandra_path_logs }}"
+
+cassandra_parms="$cassandra_parms -Dcassandra-foreground=yes"
+
+CLASSPATH="$CASSANDRA_CONF:$cassandra_bin"
+
+for jar in "$CASSANDRA_HOME"/lib/*.jar; do
+    CLASSPATH="$CLASSPATH:$jar"
+done
+
+JMX_PORT="7199"
+JVM_OPTS="-Djava.awt.headless=true"
+JVM_OPTS="$JVM_OPTS -javaagent:$CASSANDRA_HOME/lib/jamm-0.3.0.jar"
+JVM_OPTS="$JVM_OPTS -javaagent:$CASSANDRA_HOME/lib/jmx_prometheus_javaagent-0.12.0.jar=9180:$CASSANDRA_HOME/conf/jmx_prometheus_javaagent.yaml"
+JVM_OPTS="$JVM_OPTS -XX:+CMSClassUnloadingEnabled"
+JVM_OPTS="$JVM_OPTS -XX:+UseThreadPriorities"
+JVM_OPTS="$JVM_OPTS -XX:ThreadPriorityPolicy=42"
+JVM_OPTS="$JVM_OPTS -Xmx${MEM_USE}K -Xms${MEM_USE}K"
+JVM_OPTS="$JVM_OPTS -XX:+HeapDumpOnOutOfMemoryError"
+JVM_OPTS="$JVM_OPTS -Xss256k"
+JVM_OPTS="$JVM_OPTS -XX:StringTableSize=1000003"
+
+JVM_OPTS="$JVM_OPTS -XX:+UseG1GC"
+
+JVM_OPTS="$JVM_OPTS -XX:+CMSParallelInitialMarkEnabled -XX:+CMSEdenChunksRecordAlways -XX:CMSWaitDuration=10000"
+JVM_OPTS="$JVM_OPTS -XX:+UseCondCardMark"
+
+JVM_OPTS="$JVM_OPTS -Djava.net.preferIPv4Stack=true"
+
+JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.port=7199"
+JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.rmi.port=7199"
+JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.ssl=false"
+JVM_OPTS="$JVM_OPTS -Dcom.sun.management.jmxremote.authenticate=false"
+
+exec $JAVA_HOME/bin/java $JVM_OPTS $cassandra_parms -cp "$CLASSPATH" org.apache.cassandra.service.CassandraDaemon

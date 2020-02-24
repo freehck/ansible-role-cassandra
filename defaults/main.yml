@@ -1,0 +1,65 @@
+---
+
+# version
+cassandra_version: 3.11.6
+cassandra_force_upgrade: false
+
+# install paths
+cassandra_path_install: /opt
+cassandra_path_data: /var/lib/cassandra/data
+cassandra_path_logs: /var/lib/cassandra/logs
+cassandra_path_hints: /var/lib/cassandra/hints
+cassandra_path_caches: /var/lib/cassandra/caches
+cassandra_path_cdc_raw: /var/lib/cassandra/cdc_raw
+
+# checksum
+cassandra_omit_checksum: true
+cassandra_archive_sha256: a765adcaa42a6c881f5e79d030854d082900992cc11da40eee413bb235970a6a
+
+# download and temp
+cassandra_archive: "/tmp/apache-cassandra-{{ cassandra_version }}-bin.tar.gz"
+cassandra_archive_url: "http://apache-mirror.rbc.ru/pub/apache/cassandra/{{ cassandra_version }}/apache-cassandra-{{ cassandra_version }}-bin.tar.gz"
+
+# user and group
+cassandra_user: cassandra
+cassandra_group: "{{ cassandra_user }}"
+
+# systemd options
+cassandra_limit_nofile: 65535
+cassandra_start: cassandra-autoconfig    # this script will be used to ExecStart cassandra
+
+# cassandra-autoconfig parameters
+cassandra_mem_gb: 0
+cassandra_mem_pc: 50
+cassandra_node_iface_ext: eth0
+cassandra_node_iface_int: eth0
+
+# java
+cassandra_install_openjdk: no
+cassandra_openjdk_version: 8
+cassandra_java_home: /usr/lib/jvm/java-{{ cassandra_openjdk_version }}-openjdk-amd64
+
+# cassandra configuration
+cassandra_cluster_name: cassandra
+cassandra_cluster_group_name: cassandra
+cassandra_seeds_group_name: cassandra_seeds
+cassandra_hinted_handoff_throttle_in_kb: 10124
+cassandra_max_hints_delivery_threads: 2
+cassandra_batchlog_replay_throttle_in_kb: 1024
+cassandra_disk_failure_policy: stop
+cassandra_commit_failure_policy: stop
+cassandra_row_cache_size_in_mb: 0 
+cassandra_row_cache_save_period: 0
+cassandra_counter_cache_size_in_mb: ''
+cassandra_commitlog_total_space_in_mb: ''
+cassandra_concurrent_reads: 32
+cassandra_concurrent_writes: 32
+cassandra_concurrent_counter_writes: 32
+cassandra_memtable_allocation_type: heap_buffers
+cassandra_thrift_framed_transport_size_in_mb: 15
+cassandra_column_index_size_in_kb: 64
+cassandra_compaction_throughput_mb_per_sec: 16
+cassandra_read_request_timeout_in_ms: 5000
+cassandra_write_request_timeout_in_ms: 2000
+cassandra_counter_write_request_timeout_in_ms: 5000
+cassandra_cas_contention_timeout_in_ms: 5000
