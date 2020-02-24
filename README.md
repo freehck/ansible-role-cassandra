@@ -14,7 +14,7 @@ Role Variables
 variable name | default value | comment
 ------------- | ------------- | -------
 cassandra_version | 3.11.6  | version to be installed
-cassandra_version_sha256 | ce34edebd1b6bb35216ae97bd06d3efc338c05b273b78267556a99f85d30e45b | SHA256 checksum to check the downloaded file
+cassandra_version_sha256 | <...> | SHA256 checksum to check the downloaded file
 cassandra_force_upgrade | false | if false and /opt/cassandra exists it won't be replaced
 cassandra_user | cassandra | user the cassandra will be running with
 cassandra_group | cassandra | group the cassandra will be running with
