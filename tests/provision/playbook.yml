@@ -12,10 +12,3 @@
         recurse: true
   roles:
     - role: freehck.cassandra
-
-# now you can test cassandra with these commands:
-# vagrant ssh cass01
-# /opt/cassandra/bin/cqlsh 10.10.10.11 -u cassandra -p cassandra --request-timeout=60
-# CREATE KEYSPACE test WITH replication = {'class': 'SimpleStrategy', 'replication_factor': '1'} AND durable_writes = true;
-# DESCRIBE keyspaces;
-# DROP KEYSPACE test;
